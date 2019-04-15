@@ -1,0 +1,40 @@
+#include <bits/stdc++.h>
+
+using namespace std::chrono;
+
+void __attribute__ ((noinline)) GGG() {
+    std::cout << 10 << "G" << std::endl;;
+}
+
+void __attribute__ ((noinline)) JJJ() {
+    std::cout << 10 << "J" << std::endl;
+}
+
+void __attribute__ ((noinline)) foo() {
+    for (size_t i = 0; i < 1e6; ++i) {
+        std::cout << "i: " << i << "\n";
+
+        if (rand() & 1) {
+            GGG();
+        } else {
+            JJJ();
+        }
+    }
+}
+
+int main() {
+    freopen("temp.txt", "w", stdout);
+
+    uint32_t cnt_it = 100;
+    auto start = high_resolution_clock::now();
+
+    for (size_t i = 0; i < cnt_it; ++i) {
+        foo();
+    }
+
+    auto end = high_resolution_clock::now();
+
+    std::cerr << "seconds: " <<  duration_cast<nanoseconds>(end - start).count() / cnt_it / 1e9 << std::endl;
+
+    return 0;
+}

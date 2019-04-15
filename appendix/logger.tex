@@ -1,0 +1,87 @@
+#include <bits/stdc++.h>
+#include <thread>
+#include <sstream>
+
+using namespace std;
+using namespace chrono;
+
+struct logger {
+
+    logger(string const & log_path = "log") 
+        : _stopped(false)
+    {
+        _logger.open(log_path);
+    }
+
+    void start() {
+        _self = thread(bind(&logger::run, this));
+    }
+
+    void stop() {
+        _mutex.lock();
+        _stopped = true;
+        _cv.notify_one();
+        _mutex.unlock();
+
+        _self.join();
+    }
+
+    template<typename T>
+    logger& operator<<(T data) {
+        stringstream ss;
+        ss << data;
+
+        string for_buff(ss.str());
+
+        unique_lock<mutex> lk(_mutex);
+        _buff.insert(_buff.end(), for_buff.begin(), for_buff.end());
+        _cv.notify_one();
+
+        return *this;
+    }
+
+private:
+    void run() {
+        while (!_stopped) {
+            unique_lock<mutex> lk(_mutex);
+
+            _cv.wait(lk, [this]() { return _stopped || !_buff.empty(); });
+
+            _logger.write(_buff.data(), _buff.size());
+            _buff.clear();
+        }
+    }
+
+    mutex _mutex;
+    condition_variable _cv;
+
+    ofstream _logger;
+    vector<char> _buff;
+
+    bool _stopped;
+    thread _self;
+};
+
+int main() {
+    int const cnt_runs = 100;
+    int const n = 1e5;
+
+    auto start = high_resolution_clock::now();
+
+    logger log;
+    log.start();
+
+    for (size_t run_num = 0; run_num < cnt_runs; ++run_num) {
+        for (size_t i = 0; i < n; ++i) {
+            log << "hello world: " << i << "\n";
+        }
+    }
+
+    log.stop();
+
+    auto end = high_resolution_clock::now();
+
+    cerr << "time in seconds: " << duration_cast<nanoseconds>(end - start).count() * 1.0 / cnt_runs / 1e9 << endl;
+
+    return 0;    
+}
