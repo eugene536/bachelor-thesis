@@ -763,14 +763,11 @@
 %% Обработка опций пакета
 
 \newif\if@shouldusexelatex
-\newif\if@shouldusepscyr
 \newif\if@shouldmakespecification
 \newif\if@shouldmakeannotation
-\newif\if@shouldusexelatex
 \newif\if@shouldsourcesbyhand
 
 \DeclareOption{times}{\@shouldusexelatextrue}
-\DeclareOption{pscyr}{\@shouldusepscyrtrue}
 \DeclareOption{specification}{\@shouldmakespecificationtrue}
 \DeclareOption{annotation}{\@shouldmakeannotationtrue}
 
@@ -783,10 +780,5 @@
     \setsansfont{Arial}
     \setmonofont{Courier New}
 \else
-    \if@shouldusepscyr
-        \RequirePackage{pscyr}
-	    \def\rmdefault{ftm}
-    \else
-        \RequirePackage{paratype}
-    \fi
+    \RequirePackage{paratype}
 \fi	
